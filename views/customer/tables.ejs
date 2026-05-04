@@ -1,0 +1,66 @@
+<%- include('../layout/header') %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-tv text-primary me-2"></i>Daftar Meja PlayStation</h3>
+        <p class="text-muted mb-0">Lihat ketersediaan meja PS secara real-time</p>
+    </div>
+    <a href="/customer/reservations" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus me-1"></i> Buat Reservasi
+    </a>
+</div>
+
+<!-- Legend -->
+<div class="d-flex gap-3 mb-4">
+    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2"><i class="fa-solid fa-circle-check me-1"></i> Tersedia</span>
+    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2"><i class="fa-solid fa-circle-play me-1"></i> Sedang Dipakai</span>
+    <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2"><i class="fa-solid fa-wrench me-1"></i> Maintenance</span>
+</div>
+
+<!-- Grid Meja -->
+<div class="row g-4">
+    <% if (tables.length === 0) { %>
+        <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">Belum ada meja yang terdaftar.</p>
+        </div>
+    <% } else { %>
+        <% tables.forEach(table => { %>
+        <div class="col-md-4 col-lg-3">
+            <div class="card shadow-sm border-0 h-100 text-center
+                <% if (table.status === 'Available') { %> border-start border-success border-4
+                <% } else if (table.status === 'In Use') { %> border-start border-danger border-4
+                <% } else { %> border-start border-warning border-4 <% } %>">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <% if (table.status === 'Available') { %>
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fa-solid fa-gamepad fs-3"></i>
+                            </div>
+                        <% } else if (table.status === 'In Use') { %>
+                            <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fa-solid fa-circle-play fs-3"></i>
+                            </div>
+                        <% } else { %>
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fa-solid fa-wrench fs-3"></i>
+                            </div>
+                        <% } %>
+                    </div>
+                    <h5 class="fw-bold"><%= table.table_number %></h5>
+                    <% if (table.status === 'Available') { %>
+                        <span class="badge bg-success px-3 py-1">Tersedia</span>
+                    <% } else if (table.status === 'In Use') { %>
+                        <span class="badge bg-danger px-3 py-1">Sedang Dipakai</span>
+                    <% } else { %>
+                        <span class="badge bg-warning text-dark px-3 py-1">Maintenance</span>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    <% } %>
+</div>
+
+<%- include('../layout/footer') %>

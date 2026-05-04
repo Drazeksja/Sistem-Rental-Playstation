@@ -1,0 +1,167 @@
+<%- include('../layout/header') %>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-calendar-check me-2"></i>Reservasi Saya</h3>
+        <p class="text-muted mb-0">Riwayat pemesanan meja PlayStation Anda</p>
+    </div>
+    <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addReservationModal">
+        <i class="fa-solid fa-plus me-1"></i> Reservasi Baru
+    </button>
+</div>
+
+<!-- Tabel Riwayat -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <% if (reservations.length === 0) { %>
+            <div class="text-center py-5">
+                <i class="fa-solid fa-folder-open text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3 mb-1">Belum ada reservasi.</p>
+                <p class="text-muted small">Klik <strong>"Reservasi Baru"</strong> untuk mulai booking meja!</p>
+            </div>
+        <% } else { %>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">No</th>
+                        <th>Meja</th>
+                        <th>Waktu Main</th>
+                        <th>Durasi</th>
+                        <th>Biaya</th>
+                        <th>Status Bayar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% reservations.forEach((r, index) => { %>
+                    <tr>
+                        <td class="ps-4 text-muted fw-bold"><%= index + 1 %></td>
+                        <td>
+                            <span class="badge bg-dark bg-opacity-10 text-dark fs-6">
+                                <i class="fa-solid fa-tv me-1"></i> <%= r.table_number %>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="small text-muted"><i class="fa-regular fa-calendar me-1"></i> <%= new Date(r.reservation_date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %></div>
+                            <div class="fw-bold text-dark"><i class="fa-regular fa-clock me-1"></i> <%= r.start_time %> WIB</div>
+                            <% if (r.play_status === 'Sedang Main') { %>
+                                <span class="badge bg-warning text-dark mt-1"><i class="fa-solid fa-gamepad me-1"></i> Sedang Main</span>
+                            <% } else if (r.play_status === 'Selesai') { %>
+                                <span class="badge bg-secondary mt-1"><i class="fa-solid fa-flag-checkered me-1"></i> Selesai</span>
+                            <% } else { %>
+                                <span class="badge bg-info mt-1"><i class="fa-regular fa-hourglass-half me-1"></i> Menunggu</span>
+                            <% } %>
+                        </td>
+                        <td><%= r.duration %> Jam</td>
+                        <td class="fw-bold">Rp <%= Number(r.amount).toLocaleString('id-ID') %></td>
+                        <td>
+                            <% if (r.payment_status === 'Paid') { %>
+                                <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-check-double me-1"></i> Lunas</span>
+                            <% } else { %>
+                                <span class="badge bg-warning text-dark px-2 py-1"><i class="fa-solid fa-hourglass-half me-1"></i> Bayar di Tempat</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Modal Reservasi Baru -->
+<div class="modal fade" id="addReservationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-ticket me-2"></i>Reservasi Meja Baru</h5>
+                <div class="ms-auto me-3 text-white-50 small" id="custLiveClock"></div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/customer/reservations" method="POST">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Pilih Meja</label>
+                            <select name="table_id" class="form-select" required>
+                                <option value="">-- Pilih Meja Tersedia --</option>
+                                <% tables.forEach(table => { %>
+                                    <% if (table.status !== 'Maintenance') { %>
+                                    <option value="<%= table.id %>"><%= table.table_number %> (<%= table.status === 'Available' ? 'Tersedia' : 'Sedang Dipakai' %>)</option>
+                                    <% } %>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Tanggal Main</label>
+                            <input type="date" name="reservation_date" id="custDateInput" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Jam Mulai</label>
+                            <input type="time" name="start_time" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Durasi Main</label>
+                            <div class="input-group">
+                                <input type="number" name="duration" id="custDurationInput" class="form-control" min="1" value="1" required>
+                                <span class="input-group-text">Jam</span>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Total Biaya</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text fw-bold">Rp</span>
+                                <input type="number" name="amount" id="custAmountInput" class="form-control fw-bold" value="25000" readonly>
+                            </div>
+                            <div class="form-text">Rp 25.000 / jam. Harga otomatis dihitung.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-dark px-4"><i class="fa-solid fa-paper-plane me-1"></i> Kirim Reservasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-calculate
+        const dur = document.getElementById('custDurationInput');
+        const amt = document.getElementById('custAmountInput');
+        if (dur && amt) {
+            dur.addEventListener('input', function() {
+                amt.value = (parseInt(this.value) || 0) * 25000;
+            });
+        }
+
+        // Set min date = hari ini
+        const dateInput = document.getElementById('custDateInput');
+        if (dateInput) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const local = new Date(now.getTime() - offset);
+            dateInput.min = local.toISOString().split('T')[0];
+            dateInput.value = local.toISOString().split('T')[0];
+        }
+
+        // Live clock
+        const clockEl = document.getElementById('custLiveClock');
+        if (clockEl) {
+            function updateClock() {
+                const n = new Date();
+                const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+                const bln = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                clockEl.textContent = hari[n.getDay()] + ', ' + n.getDate() + ' ' + bln[n.getMonth()] + ' ' + n.getFullYear() + ' \u2014 ' + n.toLocaleTimeString('id-ID') + ' WIB';
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+    });
+</script>
+
+<%- include('../layout/footer') %>

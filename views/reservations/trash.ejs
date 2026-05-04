@@ -1,51 +1,81 @@
 <%- include('../layout/header') %>
-<h2 class="mb-4">Recycle Bin - Reservasi</h2>
 
-<a href="/admin/reservations" class="btn btn-secondary mb-4">
-    <i class="fa-solid fa-arrow-left me-2"></i>Kembali
-</a>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-trash-can me-2"></i>Recycle Bin — Reservasi</h3>
+        <p class="text-muted mb-0">Data reservasi yang telah diarsipkan/dibatalkan</p>
+    </div>
+    <a href="/admin/reservations" class="btn btn-outline-dark">
+        <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+    </a>
+</div>
 
 <% if (trashedReservations.length === 0) { %>
-<div class="alert alert-info">
-    Recycle Bin kosong.
+<div class="card shadow-sm border-0">
+    <div class="card-body text-center py-5">
+        <i class="fa-solid fa-recycle text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-3 mb-0">Recycle Bin kosong. Tidak ada reservasi yang diarsipkan.</p>
+    </div>
 </div>
 <% } else { %>
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Pelanggan</th>
-                    <th>Meja</th>
-                    <th>Tanggal</th>
-                    <th>Biaya</th>
-                    <th>Dibatalkan</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% trashedReservations.forEach(reservation => { %>
-                <tr class="table-warning">
-                    <td><%= reservation.id %></td>
-                    <td><%= reservation.customer_name %></td>
-                    <td><%= reservation.table_number %></td>
-                    <td><%= reservation.reservation_date %> <%= reservation.start_time %></td>
-                    <td>Rp <%= Number(reservation.amount).toLocaleString('id-ID') %></td>
-                    <td><%= new Date(reservation.deleted_at).toLocaleString('id-ID') %></td>
-                    <td>
-                        <a href="/admin/reservations/restore/<%= reservation.id %>" class="btn btn-success btn-sm me-2">Kembalikan</a>
-                        <form method="POST" action="/admin/reservations/permanent-delete/<%= reservation.id %>" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus permanen?')">
-                                Hapus Permanen
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4" style="width: 50px;">No</th>
+                        <th>Pelanggan</th>
+                        <th>Meja</th>
+                        <th>Jadwal Main</th>
+                        <th>Durasi</th>
+                        <th>Biaya</th>
+                        <th>Dihapus Pada</th>
+                        <th class="text-center" style="width: 240px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% trashedReservations.forEach((r, index) => { %>
+                    <tr>
+                        <td class="ps-4 text-muted fw-bold"><%= index + 1 %></td>
+                        <td>
+                            <div class="fw-bold"><i class="fa-solid fa-user me-1 text-muted"></i> <%= r.customer_name %></div>
+                        </td>
+                        <td>
+                            <span class="badge bg-dark bg-opacity-10 text-dark"><i class="fa-solid fa-tv me-1"></i> <%= r.table_number %></span>
+                        </td>
+                        <td>
+                            <div class="small text-muted"><i class="fa-regular fa-calendar me-1"></i> <%= new Date(r.reservation_date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %></div>
+                            <div class="fw-bold"><i class="fa-regular fa-clock me-1"></i> <%= r.start_time %> WIB</div>
+                        </td>
+                        <td><%= r.duration %> Jam</td>
+                        <td class="fw-bold">Rp <%= Number(r.amount).toLocaleString('id-ID') %></td>
+                        <td>
+                            <span class="text-muted small"><i class="fa-solid fa-calendar-xmark me-1"></i> <%= new Date(r.deleted_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) %>, <%= new Date(r.deleted_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %></span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-2 justify-content-center">
+                                <a href="/admin/reservations/restore/<%= r.id %>" class="btn btn-sm btn-outline-dark" onclick="return confirm('Kembalikan reservasi ini?')">
+                                    <i class="fa-solid fa-rotate-left me-1"></i> Restore
+                                </a>
+                                <form method="POST" action="/admin/reservations/permanent-delete/<%= r.id %>" class="d-inline" onsubmit="confirmAction(event, 'Hapus Permanen?', 'Data tidak bisa dikembalikan setelah dihapus.', this, 'Ya, Hapus!', '#dc3545')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fa-solid fa-trash me-1"></i> Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
     </div>
+</div>
+
+<div class="text-muted small mt-3">
+    <i class="fa-solid fa-circle-info me-1"></i> Menampilkan <strong><%= trashedReservations.length %></strong> data di Recycle Bin.
 </div>
 <% } %>
 

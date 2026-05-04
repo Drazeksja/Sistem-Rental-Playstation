@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Register Admin - Rental PS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #1a1a2e; min-height: 100vh; }
+    </style>
+</head>
+<body class="d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="text-center mb-4">
+                    <i class="fa-solid fa-shield-halved text-warning" style="font-size: 2.5rem;"></i>
+                    <h4 class="fw-bold mt-2 mb-0 text-white">Admin Panel</h4>
+                    <p class="text-white-50 small">Registrasi akun administrator</p>
+                </div>
+                <div class="card shadow border-0">
+                    <div class="card-body p-4">
+                        <form action="/auth/register-admin" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Username (juga sebagai email login)</label>
+                                <input type="text" name="username" class="form-control" placeholder="admin" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted">Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="Min. 6 karakter" minlength="6" required>
+                            </div>
+                            <button class="btn btn-warning w-100 py-2 fw-bold text-dark">Register Admin</button>
+                        </form>
+                        <hr>
+                        <div class="text-center">
+                            <a href="/auth/login" class="text-muted small">Kembali ke <strong>Login</strong></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

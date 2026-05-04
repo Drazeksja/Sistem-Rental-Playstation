@@ -64,8 +64,9 @@ exports.getTables = async (req, res) => {
                         SELECT 1 FROM reservations r 
                         WHERE r.table_id = t.id 
                           AND r.deleted_at IS NULL
-                          AND r.reservation_date = CURRENT_DATE
-                          AND CURRENT_TIME BETWEEN r.start_time AND (r.start_time + (r.duration * interval '1 hour'))
+                          AND r.reservation_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::date
+                          AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::time >= r.start_time 
+                          AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::time < (r.start_time + (r.duration * interval '1 hour'))
                     ) THEN 'In Use'
                     ELSE 'Available'
                 END as status
@@ -157,9 +158,15 @@ exports.getReservations = async (req, res) => {
     
     // JOIN antara reservations, customers, tables, dan payments
     let query = `
-        SELECT r.id, c.name AS customer_name, c.phone AS customer_phone,
-               t.table_number, r.reservation_date, r.start_time, r.duration, 
-               p.status AS payment_status, p.amount
+        SELECT r.id, c.name AS customer_name, c.phone AS customer_phone, 
+               t.table_number, r.reservation_date, r.start_time, r.duration,
+               p.status AS payment_status, p.amount,
+               CASE 
+                   WHEN r.reservation_date < (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::date THEN 'Selesai'
+                   WHEN r.reservation_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::date AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::time >= (r.start_time + (r.duration * interval '1 hour')) THEN 'Selesai'
+                   WHEN r.reservation_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::date AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::time >= r.start_time THEN 'Sedang Main'
+                   ELSE 'Menunggu'
+               END as play_status
         FROM reservations r
         JOIN customers c ON r.customer_id = c.id
         JOIN tables t ON r.table_id = t.id
@@ -188,7 +195,24 @@ exports.getReservations = async (req, res) => {
 
     try {
         const result = await pool.query(query, queryParams);
-        const tables = await pool.query("SELECT * FROM tables WHERE deleted_at IS NULL AND status != 'Maintenance' ORDER BY table_number ASC");
+        const tables = await pool.query(`
+            SELECT t.id, t.table_number,
+                CASE 
+                    WHEN t.status = 'Maintenance' THEN 'Maintenance'
+                    WHEN EXISTS (
+                        SELECT 1 FROM reservations r 
+                        WHERE r.table_id = t.id 
+                          AND r.deleted_at IS NULL
+                          AND r.reservation_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::date
+                          AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::time >= r.start_time 
+                          AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::time < (r.start_time + (r.duration * interval '1 hour'))
+                    ) THEN 'In Use'
+                    ELSE 'Available'
+                END as status
+            FROM tables t 
+            WHERE t.deleted_at IS NULL AND t.status != 'Maintenance' 
+            ORDER BY t.table_number ASC
+        `);
         const trashCount = await pool.query('SELECT COUNT(*) FROM reservations WHERE deleted_at IS NOT NULL');
         
         res.render('reservations/index', { 
@@ -227,6 +251,14 @@ exports.getTrashedReservations = async (req, res) => {
 exports.postReservation = async (req, res) => {
     const { customer_name, phone, table_id, reservation_date, start_time, duration, amount } = req.body;
     
+    // Validasi: Tanggal tidak boleh di masa lalu
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(reservation_date);
+    if (selectedDate < today) {
+        return res.send('<script>alert("Salah Tanggal Boss."); window.history.back();</script>');
+    }
+
     // Validasi: Cek bentrok waktu (overlap) di meja dan tanggal yang sama
     const overlapCheck = await pool.query(`
         SELECT id FROM reservations 

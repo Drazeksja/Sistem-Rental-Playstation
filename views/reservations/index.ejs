@@ -85,6 +85,13 @@
                         <td>
                             <div class="small text-muted"><i class="fa-regular fa-calendar me-1"></i> <%= new Date(reservation.reservation_date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %></div>
                             <div class="fw-bold text-dark"><i class="fa-regular fa-clock me-1"></i> <%= reservation.start_time %> WIB</div>
+                            <% if (reservation.play_status === 'Sedang Main') { %>
+                                <span class="badge bg-warning text-dark mt-1"><i class="fa-solid fa-gamepad me-1"></i> Sedang Main</span>
+                            <% } else if (reservation.play_status === 'Selesai') { %>
+                                <span class="badge bg-secondary mt-1"><i class="fa-solid fa-flag-checkered me-1"></i> Selesai</span>
+                            <% } else { %>
+                                <span class="badge bg-info mt-1"><i class="fa-regular fa-hourglass-half me-1"></i> Menunggu</span>
+                            <% } %>
                         </td>
                         <td><%= reservation.duration %> Jam</td>
                         <td class="fw-bold text-success">Rp <%= Number(reservation.amount).toLocaleString('id-ID') %></td>
@@ -120,8 +127,9 @@
 <div class="modal fade" id="addReservationModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title fw-bold"><i class="fa-solid fa-ticket me-2"></i>Form Reservasi Baru</h5>
+                <div class="ms-auto me-3 text-white-50 small" id="adminLiveClock"></div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="/admin/reservations" method="POST">
@@ -152,7 +160,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Tanggal Main</label>
-                            <input type="date" name="reservation_date" class="form-control" required>
+                            <input type="date" name="reservation_date" id="adminDateInput" class="form-control" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Jam Mulai</label>
@@ -175,9 +183,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary px-4"><i class="fa-solid fa-floppy-disk me-1"></i> Simpan Reservasi</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-dark px-4"><i class="fa-solid fa-floppy-disk me-1"></i> Simpan Reservasi</button>
                 </div>
             </form>
         </div>
@@ -185,17 +193,37 @@
 </div>
 
 <script>
-    // Simple script to auto-calculate amount based on duration (assuming Rp 25.000 / hour)
     document.addEventListener('DOMContentLoaded', function() {
+        // Auto-calculate amount
         const durationInput = document.getElementById('durationInput');
         const amountInput = document.getElementById('amountInput');
-        const pricePerHour = 25000;
-        
         if(durationInput && amountInput) {
             durationInput.addEventListener('input', function() {
-                const hours = parseInt(this.value) || 0;
-                amountInput.value = hours * pricePerHour;
+                amountInput.value = (parseInt(this.value) || 0) * 25000;
             });
+        }
+
+        // Set min date = hari ini (WIB)
+        const dateInput = document.getElementById('adminDateInput');
+        if (dateInput) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const local = new Date(now.getTime() - offset);
+            dateInput.min = local.toISOString().split('T')[0];
+            dateInput.value = local.toISOString().split('T')[0];
+        }
+
+        // Live clock
+        const clockEl = document.getElementById('adminLiveClock');
+        if (clockEl) {
+            function updateClock() {
+                const n = new Date();
+                const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+                const bln = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                clockEl.textContent = hari[n.getDay()] + ', ' + n.getDate() + ' ' + bln[n.getMonth()] + ' ' + n.getFullYear() + ' — ' + n.toLocaleTimeString('id-ID') + ' WIB';
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
         }
     });
 </script>

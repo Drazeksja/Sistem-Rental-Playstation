@@ -1,0 +1,147 @@
+<%- include('../layout/header') %>
+
+<!-- HERO (SAMA DENGAN ADMIN) -->
+<div class="p-5 mb-4 bg-dark text-white rounded-4 position-relative overflow-hidden shadow-lg">
+    <img src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=2070&auto=format&fit=crop" 
+         class="position-absolute w-100 h-100 top-0 start-0 opacity-25" 
+         style="object-fit: cover; z-index: 0;">
+    
+    <div class="container-fluid py-4 position-relative" style="z-index: 1;">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="fa-solid fa-gamepad text-warning me-2"></i>
+                    Rental PS UNDIP Tembalang
+                </h1>
+                <p class="fs-4 text-light opacity-75">
+                    Halo, 
+                    <span class="text-warning fw-bold"><%= username %></span>! Cek meja tersedia dan langsung booking sesi main kamu.
+                </p>
+                <div class="mt-4 gap-2 d-flex">
+                    <a href="/customer/reservations" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-ticket me-2"></i>Buat Reservasi
+                    </a>
+                    <a href="/customer/tables" class="btn btn-outline-light btn-lg">
+                        <i class="fa-solid fa-tv me-2"></i>Lihat Meja
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center d-none d-md-block">
+                <i class="fa-brands fa-playstation text-white opacity-50" style="font-size: 10rem;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- INFO CARD (SAMA DENGAN ADMIN) -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 border-start border-primary border-4 rounded-3 hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle me-3">
+                        <i class="fa-solid fa-clock fs-4"></i>
+                    </div>
+                    <h5 class="card-title text-secondary fw-bold mb-0">Jam Operasional</h5>
+                </div>
+                <p class="card-text text-muted mb-1">Buka Setiap Hari (Senin - Minggu)</p>
+                <h4 class="fw-bold text-dark">24 Jam</h4>
+                <div class="mt-3">
+                    <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i> Buka</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 border-start border-danger border-4 rounded-3 hover-lift">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle me-3">
+                        <i class="fa-solid fa-map-location-dot fs-4"></i>
+                    </div>
+                    <h5 class="card-title text-secondary fw-bold mb-0">Lokasi & Kontak</h5>
+                </div>
+                <p class="card-text text-muted mb-1">Kawasan Kampus UNDIP</p>
+                <h6 class="fw-bold text-dark lh-base">Jl. Banjarsari Selatan No. 48,<br>Tembalang, Semarang</h6>
+                <div class="mt-3">
+                    <a href="#" class="text-decoration-none text-success fw-bold"><i class="fa-brands fa-whatsapp me-1"></i> +62 812-3456-7890</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 border-start border-warning border-4 rounded-3 hover-lift">
+            <div class="card-body p-4">
+                <h5 class="fw-bold">Fasilitas</h5>
+                <ul class="list-unstyled mt-2 mb-0">
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Konsol PS5 & PS4 Pro Terbaru</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Smart TV 4K UHD 50-Inch</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Ruangan Full AC & Sofa Nyaman</li>
+                    <li><i class="fa-solid fa-check text-success me-2"></i> Free WiFi & Area Snack/Minuman</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS CUSTOMER (versi customer: total reservasi, pengeluaran, sesi hari ini) -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h6 class="text-muted"><i class="fa-solid fa-calendar-check me-1"></i> Total Reservasi Saya</h6>
+            <h3 class="fw-bold"><%= stats.totalReservations %></h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h6 class="text-muted"><i class="fa-solid fa-wallet me-1"></i> Total Pengeluaran</h6>
+            <h3 class="fw-bold">Rp <%= stats.totalSpent.toLocaleString('id-ID') %></h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h6 class="text-muted"><i class="fa-solid fa-gamepad me-1"></i> Sesi Main Hari Ini</h6>
+            <h3 class="fw-bold"><%= stats.activeToday %></h3>
+        </div>
+    </div>
+</div>
+
+<!-- GALLERY (ANIMASI BERJALAN — SAMA DENGAN ADMIN) -->
+<div class="mb-5 overflow-hidden position-relative">
+    <h5 class="fw-bold mb-3"><i class="fa-solid fa-images me-2 text-primary"></i>Galeri PlayStation</h5>
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <!-- 6 Gambar Asli -->
+            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=600">
+            
+            <!-- Duplikat 6 Gambar untuk efek looping (infinite) -->
+            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=600">
+            <img src="https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=600">
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-lift { transition: 0.2s; }
+.hover-lift:hover { transform: translateY(-5px); }
+.marquee-container { width: 100%; overflow: hidden; white-space: nowrap; padding-bottom: 10px; }
+.marquee-content { display: inline-flex; gap: 1rem; animation: scroll 25s linear infinite; }
+.marquee-content:hover { animation-play-state: paused; }
+.marquee-content img { height: 220px; width: 320px; object-fit: cover; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+.marquee-content img:hover { transform: scale(1.05); }
+@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-50% - 0.5rem)); } }
+</style>
+
+<%- include('../layout/footer') %>
