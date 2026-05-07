@@ -11,7 +11,7 @@
 
 Aplikasi web untuk mengelola penyewaan konsol PlayStation di kawasan UNDIP Tembalang, mendukung **dua aktor** (Admin & Customer) dengan hak akses terpisah. Dilengkapi dashboard analitik, validasi bentrok jadwal, serta mekanisme soft delete.
 
----
+----
 
 ## Daftar Isi
 - [Fitur Utama](#fitur-utama)
@@ -25,7 +25,7 @@ Aplikasi web untuk mengelola penyewaan konsol PlayStation di kawasan UNDIP Temba
 - [Deploy ke Vercel](#deploy-ke-vercel)
 - [Alur Penggunaan](#alur-penggunaan)
 
----
+----
 
 ## Fitur Utama
 
